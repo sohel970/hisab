@@ -69,21 +69,41 @@
     </div>
 
     <div id="main-content" class="hidden max-w-6xl mx-auto">
+  <div class="flex flex-col md:flex-row justify-between items-center bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border-b-2 border-blue-100">
+    <div class="text-center md:text-left">
+        <h1 id="current-month" class="text-xl font-bold text-slate-800 uppercase tracking-tight">জানুয়ারি ২০২৬</h1>
+        <p id="current-date" class="text-blue-600 font-semibold text-[10px]">মঙ্গলবার, ১৩ জানুয়ারি, ২০২৬</p>
+    </div>
+
+    <div class="my-4 md:my-0">
+        <div class="relative group cursor-default">
+    <h2 class="text-3xl md:text-4xl font-extrabold tracking-tighter flex items-center justify-center gap-1">
+        <span class="text-slate-800 drop-shadow-sm">
+            HISHAB
+        </span>
         
-        <div class="flex flex-col md:flex-row justify-between items-center bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border-b-2 border-blue-100">
-            <div>
-                <h1 id="current-month" class="text-2xl font-bold text-slate-800 uppercase tracking-tight">মাস</h1>
-                <p id="current-date" class="text-blue-600 font-semibold text-sm"></p>
-            </div>
-            <div class="mt-4 md:mt-0 flex items-center gap-3">
-                <button onclick="toggleLang()" id="lang-btn" class="bg-white px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 shadow-sm hover:border-blue-500 transition-all">English</button>
-                <div class="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
-                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">
-                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                    <span class="text-[10px] font-bold text-emerald-600 uppercase">Cloud Active</span>
-                </div>
-            </div>
+        <span class="relative ml-1 px-3 py-1 bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-200 transform -rotate-2 group-hover:rotate-0 transition-transform duration-300 font-serif italic text-2xl md:text-3xl">
+            KHATA
+            <span class="absolute inset-0 bg-white/20 blur-sm rounded-2xl"></span>
+        </span>
+    </h2>
+    
+    <p class="text-[8px] md:text-[10px] text-center font-bold text-slate-400 tracking-[0.3em] uppercase mt-1 opacity-80">
+        Professional Finance Tracker
+    </p>
+</div>
+    </div>
+
+    <div class="flex items-center gap-3">
+        <button onclick="toggleLang()" id="lang-btn" class="bg-white px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 shadow-sm hover:border-blue-500 transition-all">English</button>
+        <div class="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
+        
+        <div id="connection-status" class="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">
+            <span id="status-dot" class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+            <span id="status-text" class="text-[10px] font-bold text-emerald-600 uppercase">Cloud Active</span>
         </div>
+    </div>
+</div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
