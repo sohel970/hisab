@@ -62,7 +62,7 @@
             <h2 id="login-title" class="text-3xl font-bold mb-2 text-slate-800" data-en="Welcome" data-bn="স্বাগতম">স্বাগতম</h2>
             <p id="login-subtitle" class="text-slate-500 text-sm mb-8" data-en="Secure your finance today" data-bn="আপনার হিসাব সুরক্ষিত রাখুন">আপনার হিসাব সুরক্ষিত রাখুন</p>
             
-            <input type="password" id="pass-input" placeholder="••••••••" class="w-full p-4 rounded-2xl mb-4 text-center text-xl tracking-widest outline-none">
+            <input type="password" id="pass-input" placeholder="••••" class="w-full p-4 rounded-2xl mb-4 text-center text-xl tracking-widest outline-none">
             
             <button id="login-btn-text" onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl w-full transition-all shadow-lg shadow-blue-500/20 active:scale-95" data-en="Unlock" data-bn="প্রবেশ করুন">প্রবেশ করুন</button>
         </div>
@@ -195,7 +195,17 @@
             </div>
         </div>
     </div>
-
+<footer class="mt-8 pb-6 text-center">
+    <div class="inline-block p-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent w-full max-w-md mb-6"></div>
+    <div class="flex flex-col items-center gap-2">
+        <p class="text-slate-500 text-xs font-medium tracking-wide">
+            &copy; 2026 <span class="text-blue-600 font-bold">Hishab Khata</span>. All rights reserved.
+        </p>
+        <p class="bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-200 text-[11px] font-bold text-slate-600 shadow-sm">
+            This website developed by <span class="text-blue-600 uppercase tracking-tighter">Sohel Rana</span>
+        </p>
+    </div>
+</footer>
     <script>
         let visibleCount = 10; 
         const firebaseConfig = {
@@ -215,7 +225,7 @@
         let currentLang = 'bn';
 
         function login() {
-            if(document.getElementById('pass-input').value === "1234") {
+            if(document.getElementById('pass-input').value === "5254") {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
                 initApp();
