@@ -1,168 +1,324 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Hishab Khata</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hishab Khata - Pro Finance Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@300;400;600;700&display=swap');
+        
+        body { 
+            font-family: 'Hind Siliguri', sans-serif; 
+            background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+        .login-box {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        input, select {
+            border: 1px solid #cbd5e1 !important;
+            transition: all 0.3s ease !important;
+        }
+        input:focus, select:focus {
+            border-color: #2563eb !important;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+        }
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+        .animate-pop { animation: pop 0.3s ease-out; }
+        @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+    </style>
 </head>
-<body class="bg-slate-100 p-4">
+<body class="p-2 md:p-6">
 
-<!-- AUTH SCREEN -->
-<div id="authBox" class="max-w-sm mx-auto bg-white p-8 rounded-2xl shadow">
-  <h2 class="text-xl font-bold mb-4 text-center">Login / Register</h2>
-  <input id="email" type="email" class="w-full p-3 border rounded mb-3" placeholder="example@gmail.com" required>
-  <input id="password" type="password" class="w-full p-3 border rounded mb-4" placeholder="Password" required>
+    <div id="login-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[200]">
+        <div class="absolute top-6 right-6">
+            <button onclick="toggleLang()" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full border border-white/20 text-xs font-bold transition-all" id="login-lang-btn">English</button>
+        </div>
 
-  <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded mb-2">Login</button>
-  <button onclick="register()" class="w-full bg-slate-800 text-white py-3 rounded">Register</button>
-</div>
+        <div class="login-box p-10 rounded-3xl w-full max-w-sm mx-4 text-center animate-pop">
+            <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                <span class="text-white text-4xl font-bold">৳</span>
+            </div>
+            <h2 class="text-3xl font-bold mb-2 text-slate-800" data-en="Welcome" data-bn="স্বাগতম">স্বাগতম</h2>
+            <p class="text-slate-500 text-sm mb-8" data-en="Access your cloud account" data-bn="আপনার অ্যাকাউন্টে প্রবেশ করুন">আপনার অ্যাকাউন্টে প্রবেশ করুন</p>
+            
+            <input type="password" id="pass-input" placeholder="••••" class="w-full p-4 rounded-2xl mb-4 text-center text-xl tracking-widest outline-none shadow-inner">
+            
+            <button onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl w-full transition-all shadow-lg shadow-blue-500/20 active:scale-95" data-en="Login Now" data-bn="প্রবেশ করুন">প্রবেশ করুন</button>
+        </div>
+    </div>
 
-<!-- APP -->
-<div id="app" class="hidden max-w-4xl mx-auto">
-  <div class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl font-bold">📊 Hishab Khata</h1>
-    <button onclick="logout()" class="text-red-600 font-bold">Logout</button>
-  </div>
+    <div id="main-content" class="hidden max-w-6xl mx-auto">
+        
+        <div class="flex flex-col md:flex-row justify-between items-center bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border-b-2 border-blue-100">
+            <div>
+                <h1 id="current-month" class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Month</h1>
+                <p id="current-date" class="text-blue-600 font-semibold text-sm"></p>
+            </div>
+            <div class="mt-4 md:mt-0 flex items-center gap-3">
+                <button onclick="toggleLang()" id="nav-lang-btn" class="bg-white px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 shadow-sm hover:border-blue-500 transition-all">English</button>
+                <div class="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
+                <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                    <span class="text-[10px] font-bold text-emerald-600 uppercase">Cloud Active</span>
+                </div>
+            </div>
+        </div>
 
-  <div class="grid grid-cols-3 gap-3 mb-4">
-    <div class="bg-white p-4 rounded">Income<br><b id="income">৳0</b></div>
-    <div class="bg-white p-4 rounded">Expense<br><b id="expense">৳0</b></div>
-    <div class="bg-white p-4 rounded">Balance<br><b id="balance">৳0</b></div>
-  </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500 transition-transform hover:-translate-y-1">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Budget" data-bn="বাজেট">বাজেট</p>
+                <h3 id="display-budget" class="text-2xl font-bold text-slate-800">৳০</h3>
+                <button onclick="setBudget()" class="mt-3 text-[10px] text-blue-600 font-bold hover:underline" data-en="Update" data-bn="পরিবর্তন">পরিবর্তন</button>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-emerald-500 transition-transform hover:-translate-y-1">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Income" data-bn="আয়">আয়</p>
+                <h3 id="display-income" class="text-2xl font-bold text-emerald-600">৳০</h3>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-rose-500 transition-transform hover:-translate-y-1">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Expense" data-bn="খরচ">খরচ</p>
+                <h3 id="display-expense" class="text-2xl font-bold text-rose-600">৳০</h3>
+            </div>
+            <div class="bg-slate-800 p-6 rounded-3xl shadow-lg border-b-4 border-slate-600 transition-transform hover:-translate-y-1">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Balance" data-bn="অবশিষ্ট">অবশিষ্ট</p>
+                <h3 id="display-balance" class="text-2xl font-bold text-white">৳০</h3>
+            </div>
+        </div>
 
-  <div class="bg-white p-4 rounded mb-4">
-    <input id="title" placeholder="Details" class="border p-2 w-full mb-2">
-    <input id="amount" type="number" placeholder="Amount" class="border p-2 w-full mb-2">
-    <select id="type" class="border p-2 w-full mb-2">
-      <option value="income">Income</option>
-      <option value="expense">Expense</option>
-    </select>
-    <button onclick="addEntry()" class="bg-blue-600 text-white w-full py-2 rounded">Save</button>
-  </div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-6">
+            <h3 class="text-xs font-bold text-slate-500 mb-6 uppercase tracking-widest" data-en="Spending Analytics" data-bn="খরচের বিশ্লেষণ">খরচের বিশ্লেষণ</h3>
+            <div class="h-[200px]"><canvas id="expenseChart"></canvas></div>
+        </div>
 
-  <div class="bg-white p-4 rounded">
-    <canvas id="chart" height="120"></canvas>
-  </div>
-</div>
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-rose-500">
+                <h3 class="font-bold text-rose-600 mb-6 flex items-center gap-2 text-lg">
+                    <span>💸</span> <span data-en="Add Expense" data-bn="খরচ যোগ করুন">খরচ যোগ করুন</span>
+                </h3>
+                <div class="space-y-4">
+                    <input type="text" id="ex-title" placeholder="Details" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="number" id="ex-amount" placeholder="Amount (৳)" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="date" id="ex-date" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <button onclick="addEntry('expense')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all" data-en="Save Expense" data-bn="সেভ করুন">সেভ করুন</button>
+                </div>
+            </div>
 
-<script>
-/* 🔥 FIREBASE CONFIG - Replace with your own */
-const firebaseConfig = {
-  apiKey: "AIzaSyBNbT6hYnRd5HYp-trhVJLUui4HsZuu_Lo",
-  authDomain: "myhishab-12637.firebaseapp.com",
-  databaseURL: "https://myhishab-12637-default-rtdb.firebaseio.com",
-  projectId: "myhishab-12637",
-  storageBucket: "myhishab-12637.firebasestorage.app",
-  messagingSenderId: "624186685166",
-  appId: "1:624186685166:web:88be2c69f06b04b0bea5ff",
-  measurementId: "G-TSGFNJJYD4"
-};
+            <div class="bg-white p-8 rounded-3xl shadow-sm border-t-8 border-emerald-500">
+                <h3 class="font-bold text-emerald-600 mb-6 flex items-center gap-2 text-lg">
+                    <span>💰</span> <span data-en="Add Income" data-bn="আয় যোগ করুন">আয় যোগ করুন</span>
+                </h3>
+                <div class="space-y-4">
+                    <input type="text" id="in-title" placeholder="Details" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="number" id="in-amount" placeholder="Amount (৳)" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="date" id="in-date" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <button onclick="addEntry('income')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all" data-en="Save Income" data-bn="সেভ করুন">সেভ করুন</button>
+                </div>
+            </div>
+        </div>
 
-let uid, dbRef, chart;
-const emailEl = document.getElementById("email");
-const passwordEl = document.getElementById("password");
-const incomeEl = document.getElementById("income");
-const expenseEl = document.getElementById("expense");
-const balanceEl = document.getElementById("balance");
-const chartEl = document.getElementById("chart");
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100" id="report-section">
+            <div class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-4">
+                <h3 class="font-bold text-slate-800 text-xl" data-en="Recent Transactions" data-bn="সাম্প্রতিক লেনদেন">সাম্প্রতিক লেনদেন</h3>
+                <div class="flex flex-wrap justify-center gap-2">
+                    <input type="month" id="search-month" class="p-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200">
+                    <select id="filter-type" class="p-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200">
+                        <option value="all">ALL</option>
+                        <option value="income">INCOME</option>
+                        <option value="expense">EXPENSE</option>
+                    </select>
+                    <button onclick="renderUI()" class="bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all">SEARCH</button>
+                    <button onclick="exportJPG()" class="bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-amber-100 transition-all">EXPORT</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead>
+                        <tr class="text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-slate-50">
+                            <th class="pb-4 pl-2">Date</th>
+                            <th class="pb-4">Label</th>
+                            <th class="pb-4 text-center">Type</th>
+                            <th class="pb-4 text-right pr-2">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-/* AUTH STATE */
-firebase.auth().onAuthStateChanged(user => {
-  if(user){
-    uid = user.uid;
-    dbRef = firebase.database().ref("users/" + uid);
-    document.getElementById("authBox").classList.add("hidden");
-    document.getElementById("app").classList.remove("hidden");
-    loadData();
-  } else {
-    document.getElementById("authBox").classList.remove("hidden");
-    document.getElementById("app").classList.add("hidden");
-  }
-});
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBNbT6hYnRd5HYp-trhVJLUui4HsZuu_Lo",
+            authDomain: "myhishab-12637.firebaseapp.com",
+            databaseURL: "https://myhishab-12637-default-rtdb.firebaseio.com",
+            projectId: "myhishab-12637",
+            storageBucket: "myhishab-12637.firebasestorage.app",
+            messagingSenderId: "624186685166",
+            appId: "1:624186685166:web:88be2c69f06b04b0bea5ff"
+        };
 
-/* REGISTER */
-function register(){
-  const email = emailEl.value.trim();
-  const pass = passwordEl.value.trim();
-  if(!email || !pass){ alert("Email ও Password লিখুন"); return; }
+        firebase.initializeApp(firebaseConfig);
+        const dbRef = firebase.database().ref('userFinanceData');
+        let localDB = { budget: 0, entries: [] };
+        let currentLang = 'bn';
 
-  firebase.auth().createUserWithEmailAndPassword(email, pass)
-    .then(()=> alert("Register Successful"))
-    .catch(err=> alert(err.message));
-}
+        function toggleLang() {
+            currentLang = currentLang === 'bn' ? 'en' : 'bn';
+            const btnText = currentLang === 'bn' ? 'English' : 'বাংলা';
+            document.getElementById('login-lang-btn').innerText = btnText;
+            document.getElementById('nav-lang-btn').innerText = btnText;
+            
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            
+            // Placeholder and dynamic texts
+            document.getElementById('ex-title').placeholder = currentLang === 'bn' ? 'বিবরণ' : 'Description';
+            document.getElementById('in-title').placeholder = currentLang === 'bn' ? 'বিবরণ' : 'Description';
 
-/* LOGIN */
-function login(){
-  const email = emailEl.value.trim();
-  const pass = passwordEl.value.trim();
-  if(!email || !pass){ alert("Email ও Password লিখুন"); return; }
+            initApp();
+            renderUI();
+        }
 
-  firebase.auth().signInWithEmailAndPassword(email, pass)
-    .catch(err=> alert(err.message));
-}
+        function login() {
+            if(document.getElementById('pass-input').value === "5254") {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('hidden');
+                initApp();
+            } else { alert(currentLang === 'bn' ? "ভুল পাসওয়ার্ড!" : "Wrong Password!"); }
+        }
 
-/* LOGOUT */
-function logout(){ firebase.auth().signOut(); }
+        function initApp() {
+            const now = new Date();
+            const locale = currentLang === 'bn' ? 'bn-BD' : 'en-US';
+            document.getElementById('current-month').innerText = now.toLocaleString(locale, { month: 'long', year: 'numeric' });
+            document.getElementById('current-date').innerText = now.toLocaleDateString(locale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                if(data) {
+                    localDB = data;
+                    if(!localDB.entries) localDB.entries = [];
+                    renderUI();
+                }
+            });
+        }
 
-/* ADD ENTRY */
-function addEntry(){
-  const title = document.getElementById("title").value.trim();
-  const amount = Number(document.getElementById("amount").value);
-  const type = document.getElementById("type").value;
+        function setBudget() {
+            const val = prompt(currentLang === 'bn' ? "বাজেট লিখুন:" : "Enter Budget:", localDB.budget);
+            if(val !== null) {
+                localDB.budget = parseFloat(val) || 0;
+                dbRef.set(localDB);
+            }
+        }
 
-  if(!title || !amount) return alert("Title & Amount লাগবে");
+        function addEntry(type) {
+            const title = document.getElementById(type === 'income' ? 'in-title' : 'ex-title').value;
+            const amount = document.getElementById(type === 'income' ? 'in-amount' : 'ex-amount').value;
+            const date = document.getElementById(type === 'income' ? 'in-date' : 'ex-date').value;
 
-  dbRef.push({title, amount, type, date: Date.now()});
-  document.getElementById("title").value = "";
-  document.getElementById("amount").value = "";
-}
+            if(!title || !amount || !date) return alert("Error: Missing Data");
 
-/* LOAD DATA */
-function loadData(){
-  dbRef.on("value", snap => {
-    let income=0, expense=0, data=[];
-    snap.forEach(s => { const d=s.val(); data.push(d); d.type==="income"?income+=d.amount:expense+=d.amount; });
-    incomeEl.innerText = "৳"+income;
-    expenseEl.innerText = "৳"+expense;
-    balanceEl.innerText = "৳"+(income-expense);
-    drawChart(data);
-  });
-}
+            const newEntry = { title, amount: parseFloat(amount), date, type };
+            localDB.entries.push(newEntry);
 
-/* DRAW CHART */
-function drawChart(data){
-  if(chart) chart.destroy();
-  chart = new Chart(chartEl, {
-    type: "pie",
-    data: {
-      labels: ["Income","Expense"],
-      datasets:[{data:[
-        data.filter(d=>d.type==="income").reduce((s,e)=>s+e.amount,0),
-        data.filter(d=>d.type==="expense").reduce((s,e)=>s+e.amount,0)
-      ], backgroundColor: ["#10b981","#ef4444"]}]
-    }
-  });
-}
+            dbRef.set(localDB).then(() => {
+                showNotify(currentLang === 'bn' ? "সেভ করা হয়েছে" : "Data Saved");
+                document.getElementById(type === 'income' ? 'in-title' : 'ex-title').value = '';
+                document.getElementById(type === 'income' ? 'in-amount' : 'ex-amount').value = '';
+            });
+        }
 
-/* PWA */
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("sw.js");
-}
-</script>
+        function renderUI() {
+            const sMonth = document.getElementById('search-month').value || new Date().toISOString().slice(0, 7);
+            const fType = document.getElementById('filter-type').value;
+
+            let filtered = (localDB.entries || []).filter(e => e.date.startsWith(sMonth));
+            if(fType !== 'all') filtered = filtered.filter(e => e.type === fType);
+
+            const inAmt = filtered.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
+            const exAmt = filtered.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
+
+            document.getElementById('display-budget').innerText = `৳${localDB.budget}`;
+            document.getElementById('display-income').innerText = `৳${inAmt}`;
+            document.getElementById('display-expense').innerText = `৳${exAmt}`;
+            document.getElementById('display-balance').innerText = `৳${localDB.budget - exAmt}`;
+
+            const tbody = document.getElementById('history-body');
+            tbody.innerHTML = '';
+            filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(e => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-5 pl-2 text-[10px] font-bold text-slate-400">${e.date}</td>
+                        <td class="py-5 font-bold text-slate-700">${e.title}</td>
+                        <td class="py-5 text-center">
+                            <span class="px-3 py-1 rounded-lg text-[9px] font-bold ${e.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
+                                ${e.type.toUpperCase()}
+                            </span>
+                        </td>
+                        <td class="py-5 text-right font-bold pr-2">৳${e.amount}</td>
+                    </tr>
+                `;
+            });
+            updateChart(filtered);
+        }
+
+        let myChart;
+        function updateChart(data) {
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            const daily = {};
+            data.filter(e => e.type === 'expense').forEach(e => daily[e.date] = (daily[e.date] || 0) + e.amount);
+
+            if(myChart) myChart.destroy();
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(daily),
+                    datasets: [{
+                        data: Object.values(daily),
+                        borderColor: '#2563eb',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        fill: true,
+                        backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                        tension: 0.4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { display: false }, x: { grid: { display: false } } }
+                }
+            });
+        }
+
+        function showNotify(msg) {
+            const div = document.createElement('div');
+            div.className = "fixed bottom-10 right-10 bg-slate-800 text-white px-8 py-4 rounded-2xl shadow-2xl z-[500] font-bold animate-pop";
+            div.innerText = "✓ " + msg;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 3000);
+        }
+
+        function exportJPG() {
+            html2canvas(document.getElementById('report-section')).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Finance_Report.jpg';
+                link.href = canvas.toDataURL('image/jpeg');
+                link.click();
+            });
+        }
+    </script>
 </body>
 </html>
-
-
-
-
