@@ -19,10 +19,18 @@
         }
 
         .login-box {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
 
         input, select {
@@ -32,6 +40,7 @@
         input:focus, select:focus {
             border-color: #2563eb !important;
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+            background: white !important;
         }
 
         .animate-pop { animation: pop 0.3s ease-out; }
@@ -41,20 +50,21 @@
 <body class="p-2 md:p-6">
 
     <div id="login-screen" class="fixed inset-0 bg-slate-900 flex items-center justify-center z-[200]">
-        <div class="absolute top-6 right-6">
-            <button onclick="toggleLang()" class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full border border-white/20 text-xs font-bold transition-all" id="login-lang-btn">English</button>
-        </div>
+        <div class="login-box p-10 rounded-3xl w-full max-w-sm mx-4 text-center relative">
+            
+            <button onclick="toggleLang()" id="login-lang-btn" class="absolute top-4 right-4 bg-white/50 px-3 py-1 rounded-lg text-[10px] font-bold border border-slate-300">
+                English
+            </button>
 
-        <div class="login-box p-10 rounded-3xl w-full max-w-sm mx-4 text-center animate-pop">
             <div class="w-20 h-20 bg-blue-600 rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-blue-500/30">
                 <span class="text-white text-4xl font-bold">৳</span>
             </div>
-            <h2 class="text-3xl font-bold mb-2 text-slate-800" data-en="Welcome" data-bn="স্বাগতম">স্বাগতম</h2>
-            <p class="text-slate-500 text-sm mb-8" data-en="Access your cloud account" data-bn="আপনার অ্যাকাউন্টে প্রবেশ করুন">আপনার অ্যাকাউন্টে প্রবেশ করুন</p>
+            <h2 id="login-title" class="text-3xl font-bold mb-2 text-slate-800" data-en="Welcome" data-bn="স্বাগতম">স্বাগতম</h2>
+            <p id="login-subtitle" class="text-slate-500 text-sm mb-8" data-en="Secure your finance today" data-bn="আপনার হিসাব সুরক্ষিত রাখুন">আপনার হিসাব সুরক্ষিত রাখুন</p>
             
-            <input type="password" id="pass-input" placeholder="••••" class="w-full p-4 rounded-2xl mb-4 text-center text-xl tracking-widest outline-none shadow-inner">
+            <input type="password" id="pass-input" placeholder="••••••••" class="w-full p-4 rounded-2xl mb-4 text-center text-xl tracking-widest outline-none">
             
-            <button onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl w-full transition-all shadow-lg shadow-blue-500/20 active:scale-95" data-en="Login Now" data-bn="প্রবেশ করুন">প্রবেশ করুন</button>
+            <button id="login-btn-text" onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl w-full transition-all shadow-lg shadow-blue-500/20 active:scale-95" data-en="Unlock" data-bn="প্রবেশ করুন">প্রবেশ করুন</button>
         </div>
     </div>
 
@@ -62,11 +72,11 @@
         
         <div class="flex flex-col md:flex-row justify-between items-center bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border-b-2 border-blue-100">
             <div>
-                <h1 id="current-month" class="text-2xl font-bold text-slate-800 uppercase tracking-tight">Month</h1>
+                <h1 id="current-month" class="text-2xl font-bold text-slate-800 uppercase tracking-tight">মাস</h1>
                 <p id="current-date" class="text-blue-600 font-semibold text-sm"></p>
             </div>
             <div class="mt-4 md:mt-0 flex items-center gap-3">
-                <button onclick="toggleLang()" id="nav-lang-btn" class="bg-white px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 shadow-sm hover:border-blue-500 transition-all">English</button>
+                <button onclick="toggleLang()" id="lang-btn" class="bg-white px-5 py-2.5 rounded-xl text-xs font-bold border border-slate-200 shadow-sm hover:border-blue-500 transition-all">English</button>
                 <div class="h-8 w-[1px] bg-slate-200 hidden md:block"></div>
                 <div class="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">
                     <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
@@ -76,28 +86,30 @@
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500 transition-transform hover:-translate-y-1">
-                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Budget" data-bn="বাজেট">বাজেট</p>
+            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-blue-500">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Monthly Budget" data-bn="মাসিক বাজেট">মাসিক বাজেট</p>
                 <h3 id="display-budget" class="text-2xl font-bold text-slate-800">৳০</h3>
-                <button onclick="setBudget()" class="mt-3 text-[10px] text-blue-600 font-bold hover:underline" data-en="Update" data-bn="পরিবর্তন">পরিবর্তন</button>
+                <button onclick="setBudget()" class="mt-3 text-[10px] text-blue-600 font-bold hover:underline" data-en="Edit Budget" data-bn="বাজেট পরিবর্তন">বাজেট পরিবর্তন</button>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-emerald-500 transition-transform hover:-translate-y-1">
-                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Income" data-bn="আয়">আয়</p>
+            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-emerald-500">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Total Income" data-bn="মোট আয়">মোট আয়</p>
                 <h3 id="display-income" class="text-2xl font-bold text-emerald-600">৳০</h3>
             </div>
-            <div class="bg-white p-6 rounded-3xl shadow-sm border-b-4 border-rose-500 transition-transform hover:-translate-y-1">
-                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Expense" data-bn="খরচ">খরচ</p>
+            <div class="stat-card bg-white p-6 rounded-3xl shadow-sm border-b-4 border-rose-500">
+                <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Total Expense" data-bn="মোট খরচ">মোট খরচ</p>
                 <h3 id="display-expense" class="text-2xl font-bold text-rose-600">৳০</h3>
             </div>
-            <div class="bg-slate-800 p-6 rounded-3xl shadow-lg border-b-4 border-slate-600 transition-transform hover:-translate-y-1">
+            <div class="stat-card bg-slate-800 p-6 rounded-3xl shadow-lg border-b-4 border-slate-600">
                 <p class="text-[10px] text-slate-400 font-bold uppercase mb-1" data-en="Balance" data-bn="অবশিষ্ট">অবশিষ্ট</p>
                 <h3 id="display-balance" class="text-2xl font-bold text-white">৳০</h3>
             </div>
         </div>
 
-        <div class="bg-white p-6 rounded-3xl shadow-sm mb-6">
-            <h3 class="text-xs font-bold text-slate-500 mb-6 uppercase tracking-widest" data-en="Spending Analytics" data-bn="খরচের বিশ্লেষণ">খরচের বিশ্লেষণ</h3>
-            <div class="h-[200px]"><canvas id="expenseChart"></canvas></div>
+        <div class="bg-white p-6 rounded-3xl shadow-sm mb-6 border border-slate-100">
+            <h3 class="text-xs font-bold text-slate-500 mb-6 uppercase tracking-widest" data-en="Expense Insights" data-bn="খরচের গ্রাফ">খরচের গ্রাফ</h3>
+            <div class="h-[200px] md:h-[250px]">
+                <canvas id="expenseChart"></canvas>
+            </div>
         </div>
 
         <div class="grid md:grid-cols-2 gap-6 mb-6">
@@ -106,10 +118,10 @@
                     <span>💸</span> <span data-en="Add Expense" data-bn="খরচ যোগ করুন">খরচ যোগ করুন</span>
                 </h3>
                 <div class="space-y-4">
-                    <input type="text" id="ex-title" placeholder="Details" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
-                    <input type="number" id="ex-amount" placeholder="Amount (৳)" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="text" id="ex-title" placeholder="বিবরণ" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="number" id="ex-amount" placeholder="পরিমাণ (৳)" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
                     <input type="date" id="ex-date" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
-                    <button onclick="addEntry('expense')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all" data-en="Save Expense" data-bn="সেভ করুন">সেভ করুন</button>
+                    <button onclick="addEntry('expense')" class="w-full bg-rose-500 hover:bg-rose-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-rose-200 transition-all active:scale-95" data-en="Save Expense" data-bn="খরচ সেভ করুন">খরচ সেভ করুন</button>
                 </div>
             </div>
 
@@ -118,32 +130,34 @@
                     <span>💰</span> <span data-en="Add Income" data-bn="আয় যোগ করুন">আয় যোগ করুন</span>
                 </h3>
                 <div class="space-y-4">
-                    <input type="text" id="in-title" placeholder="Details" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
-                    <input type="number" id="in-amount" placeholder="Amount (৳)" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="text" id="in-title" placeholder="বিবরণ" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
+                    <input type="number" id="in-amount" placeholder="পরিমাণ (৳)" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
                     <input type="date" id="in-date" class="w-full p-4 rounded-2xl bg-slate-50 outline-none">
-                    <button onclick="addEntry('income')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg transition-all" data-en="Save Income" data-bn="সেভ করুন">সেভ করুন</button>
+                    <button onclick="addEntry('income')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-emerald-200 transition-all active:scale-95" data-en="Save Income" data-bn="আয় সেভ করুন">আয় সেভ করুন</button>
                 </div>
             </div>
         </div>
 
         <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100" id="report-section">
-            <div class="flex flex-col lg:flex-row justify-between items-center mb-8 gap-4">
-                <h3 class="font-bold text-slate-800 text-xl" data-en="Recent Transactions" data-bn="সাম্প্রতিক লেনদেন">সাম্প্রতিক লেনদেন</h3>
-                <div class="flex flex-wrap justify-center gap-2">
-                    <input type="month" id="search-month" class="p-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200">
-                    <select id="filter-type" class="p-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200">
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+                <h3 class="font-bold text-slate-800 text-xl" data-en="Recent Transactions" data-bn="সাম্প্রতিক হিসাব">সাম্প্রতিক হিসাব</h3>
+                <div class="flex flex-wrap gap-2">
+                    <input type="date" id="search-date" class="p-2.5 rounded-xl text-xs outline-none bg-slate-50 border border-slate-200">
+                    <input type="month" id="search-month" class="p-2.5 rounded-xl text-xs outline-none bg-slate-50 border border-slate-200">
+                    <select id="filter-type" class="p-2.5 rounded-xl text-xs bg-slate-50 border border-slate-200 outline-none">
                         <option value="all">ALL</option>
                         <option value="income">INCOME</option>
                         <option value="expense">EXPENSE</option>
                     </select>
-                    <button onclick="renderUI()" class="bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all">SEARCH</button>
-                    <button onclick="exportJPG()" class="bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-amber-100 transition-all">EXPORT</button>
+                    <button onclick="visibleCount=10; renderUI()" class="bg-slate-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-black transition-all">SEARCH</button>
+                    <button onclick="exportJPG()" class="bg-amber-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-600 shadow-md shadow-amber-200 transition-all">EXPORT</button>
                 </div>
             </div>
+
             <div class="overflow-x-auto">
                 <table class="w-full text-left text-sm">
                     <thead>
-                        <tr class="text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-slate-50">
+                        <tr class="text-slate-400 text-[11px] font-bold uppercase tracking-wider border-b border-slate-100">
                             <th class="pb-4 pl-2">Date</th>
                             <th class="pb-4">Label</th>
                             <th class="pb-4 text-center">Type</th>
@@ -153,10 +167,37 @@
                     <tbody id="history-body" class="divide-y divide-slate-50"></tbody>
                 </table>
             </div>
+
+            <div id="pagination-controls" class="mt-8 flex justify-center gap-4 hidden">
+                <button id="see-less-btn" onclick="showLess()" class="bg-slate-200 text-slate-700 px-6 py-2 rounded-xl font-bold text-sm hover:bg-slate-300 transition-all hidden">
+                    See Less
+                </button>
+                <button id="see-more-btn" onclick="showMore()" class="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-md">
+                    See More
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="invoice-template" style="position: absolute; left: -9999px; top: 0; width: 450px; background: white; padding: 50px; border-radius: 30px;">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="width: 50px; height: 50px; background: #2563eb; color: white; border-radius: 12px; display: inline-block; line-height: 50px; font-size: 24px; font-weight: bold;">৳</div>
+            <h2 style="color: #1e293b; margin-top: 15px; font-size: 20px;">HISHAB INVOICE</h2>
+        </div>
+        <hr style="border: 0; border-top: 2px dashed #e2e8f0; margin-bottom: 30px;">
+        <div style="font-size: 16px; color: #475569; line-height: 2;">
+            <p><strong>Date:</strong> <span id="inv-date"></span></p>
+            <p><strong>Details:</strong> <span id="inv-title"></span></p>
+            <p><strong>Category:</strong> <span id="inv-type"></span></p>
+            <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 20px; text-align: center;">
+                <span style="font-size: 14px; text-transform: uppercase; color: #94a3b8;">Total Amount</span>
+                <h1 style="font-size: 36px; color: #1e293b; margin: 0;">৳<span id="inv-amount"></span></h1>
+            </div>
         </div>
     </div>
 
     <script>
+        let visibleCount = 10; 
         const firebaseConfig = {
             apiKey: "AIzaSyBNbT6hYnRd5HYp-trhVJLUui4HsZuu_Lo",
             authDomain: "myhishab-12637.firebaseapp.com",
@@ -164,7 +205,8 @@
             projectId: "myhishab-12637",
             storageBucket: "myhishab-12637.firebasestorage.app",
             messagingSenderId: "624186685166",
-            appId: "1:624186685166:web:88be2c69f06b04b0bea5ff"
+            appId: "1:624186685166:web:88be2c69f06b04b0bea5ff",
+            measurementId: "G-TSGFNJJYD4"
         };
 
         firebase.initializeApp(firebaseConfig);
@@ -172,30 +214,38 @@
         let localDB = { budget: 0, entries: [] };
         let currentLang = 'bn';
 
-        function toggleLang() {
-            currentLang = currentLang === 'bn' ? 'en' : 'bn';
-            const btnText = currentLang === 'bn' ? 'English' : 'বাংলা';
-            document.getElementById('login-lang-btn').innerText = btnText;
-            document.getElementById('nav-lang-btn').innerText = btnText;
-            
-            document.querySelectorAll('[data-en]').forEach(el => {
-                el.innerText = el.getAttribute(`data-${currentLang}`);
-            });
-            
-            // Placeholder and dynamic texts
-            document.getElementById('ex-title').placeholder = currentLang === 'bn' ? 'বিবরণ' : 'Description';
-            document.getElementById('in-title').placeholder = currentLang === 'bn' ? 'বিবরণ' : 'Description';
-
-            initApp();
-            renderUI();
-        }
-
         function login() {
-            if(document.getElementById('pass-input').value === "5254") {
+            if(document.getElementById('pass-input').value === "1234") {
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
                 initApp();
             } else { alert(currentLang === 'bn' ? "ভুল পাসওয়ার্ড!" : "Wrong Password!"); }
+        }
+
+        function toggleLang() {
+            currentLang = currentLang === 'bn' ? 'en' : 'bn';
+            
+            // Update Toggle Button Text
+            const btnText = currentLang === 'bn' ? 'English' : 'বাংলা';
+            document.getElementById('lang-btn').innerText = btnText;
+            document.getElementById('login-lang-btn').innerText = btnText;
+
+            // Update Login Screen specifically
+            const lib = {
+                bn: { title: "স্বাগতম", sub: "আপনার হিসাব সুরক্ষিত রাখুন", btn: "প্রবেশ করুন" },
+                en: { title: "Welcome", sub: "Secure your finance today", btn: "Unlock" }
+            };
+            document.getElementById('login-title').innerText = lib[currentLang].title;
+            document.getElementById('login-subtitle').innerText = lib[currentLang].sub;
+            document.getElementById('login-btn-text').innerText = lib[currentLang].btn;
+
+            // Update Main UI elements with data-en
+            document.querySelectorAll('[data-en]').forEach(el => {
+                el.innerText = el.getAttribute(`data-${currentLang}`);
+            });
+            
+            initApp();
+            renderUI();
         }
 
         function initApp() {
@@ -227,24 +277,51 @@
             const amount = document.getElementById(type === 'income' ? 'in-amount' : 'ex-amount').value;
             const date = document.getElementById(type === 'income' ? 'in-date' : 'ex-date').value;
 
-            if(!title || !amount || !date) return alert("Error: Missing Data");
+            if(!title || !amount || !date) return alert("Required Fields Empty!");
 
             const newEntry = { title, amount: parseFloat(amount), date, type };
             localDB.entries.push(newEntry);
 
             dbRef.set(localDB).then(() => {
-                showNotify(currentLang === 'bn' ? "সেভ করা হয়েছে" : "Data Saved");
+                showNotify(currentLang === 'bn' ? "ডাটা সেভ হয়েছে" : "Data Saved");
+                downloadInvoice(newEntry);
                 document.getElementById(type === 'income' ? 'in-title' : 'ex-title').value = '';
                 document.getElementById(type === 'income' ? 'in-amount' : 'ex-amount').value = '';
             });
         }
 
+        function downloadInvoice(item) {
+            document.getElementById('inv-date').innerText = item.date;
+            document.getElementById('inv-title').innerText = item.title;
+            document.getElementById('inv-type').innerText = item.type.toUpperCase();
+            document.getElementById('inv-amount').innerText = item.amount;
+            html2canvas(document.getElementById('invoice-template'), {backgroundColor: null}).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Invoice_${item.title}.jpg`;
+                link.href = canvas.toDataURL('image/jpeg', 0.9);
+                link.click();
+            });
+        }
+
         function renderUI() {
-            const sMonth = document.getElementById('search-month').value || new Date().toISOString().slice(0, 7);
+            const sDate = document.getElementById('search-date').value;
+            const sMonth = document.getElementById('search-month').value;
             const fType = document.getElementById('filter-type').value;
 
-            let filtered = (localDB.entries || []).filter(e => e.date.startsWith(sMonth));
-            if(fType !== 'all') filtered = filtered.filter(e => e.type === fType);
+            let filtered = localDB.entries || [];
+
+            if (sDate) {
+                filtered = filtered.filter(e => e.date === sDate);
+            } else if (sMonth) {
+                filtered = filtered.filter(e => e.date.startsWith(sMonth));
+            } else {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                filtered = filtered.filter(e => e.date.startsWith(currentMonth));
+            }
+
+            if (fType !== 'all') {
+                filtered = filtered.filter(e => e.type === fType);
+            }
 
             const inAmt = filtered.filter(e => e.type === 'income').reduce((s, e) => s + e.amount, 0);
             const exAmt = filtered.filter(e => e.type === 'expense').reduce((s, e) => s + e.amount, 0);
@@ -256,21 +333,52 @@
 
             const tbody = document.getElementById('history-body');
             tbody.innerHTML = '';
-            filtered.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(e => {
+            
+            // Sorting & Pagination
+            const sortedData = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+            const toShow = sortedData.slice(0, visibleCount);
+
+            toShow.forEach(e => {
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="py-5 pl-2 text-[10px] font-bold text-slate-400">${e.date}</td>
-                        <td class="py-5 font-bold text-slate-700">${e.title}</td>
-                        <td class="py-5 text-center">
+                    <tr class="hover:bg-slate-50 transition-colors border-b">
+                        <td class="py-4 pl-2 text-[10px] font-bold text-slate-400">${e.date}</td>
+                        <td class="py-4 font-bold text-slate-700">${e.title}</td>
+                        <td class="py-4 text-center">
                             <span class="px-3 py-1 rounded-lg text-[9px] font-bold ${e.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'}">
                                 ${e.type.toUpperCase()}
                             </span>
                         </td>
-                        <td class="py-5 text-right font-bold pr-2">৳${e.amount}</td>
+                        <td class="py-4 text-right font-bold pr-2">৳${e.amount}</td>
                     </tr>
                 `;
             });
-            updateChart(filtered);
+
+            // Pagination Controls UI (New)
+            const paginationControls = document.getElementById('pagination-controls');
+            const moreBtn = document.getElementById('see-more-btn');
+            const lessBtn = document.getElementById('see-less-btn');
+
+            if (filtered.length > 10) {
+                paginationControls.classList.remove('hidden');
+                moreBtn.classList.toggle('hidden', visibleCount >= filtered.length);
+                lessBtn.classList.toggle('hidden', visibleCount <= 10);
+            } else {
+                paginationControls.classList.add('hidden');
+            }
+
+            if (typeof updateChart === "function") updateChart(filtered);
+        }
+
+        // Pagination Functions (New)
+        function showMore() {
+            visibleCount += 10;
+            renderUI();
+        }
+
+        function showLess() {
+            visibleCount = 10;
+            renderUI();
+            document.getElementById('report-section').scrollIntoView({ behavior: 'smooth' });
         }
 
         let myChart;
@@ -288,9 +396,16 @@
                         data: Object.values(daily),
                         borderColor: '#2563eb',
                         borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#2563eb',
                         pointRadius: 4,
                         fill: true,
-                        backgroundColor: 'rgba(37, 99, 235, 0.05)',
+                        backgroundColor: (context) => {
+                            const gradient = context.chart.ctx.createLinearGradient(0, 0, 0, 300);
+                            gradient.addColorStop(0, 'rgba(37, 99, 235, 0.1)');
+                            gradient.addColorStop(1, 'rgba(37, 99, 235, 0)');
+                            return gradient;
+                        },
                         tension: 0.4
                     }]
                 },
@@ -298,7 +413,10 @@
                     responsive: true, 
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { display: false }, x: { grid: { display: false } } }
+                    scales: { 
+                        y: { display: false }, 
+                        x: { grid: { display: false }, border: {display: false} } 
+                    }
                 }
             });
         }
@@ -314,7 +432,7 @@
         function exportJPG() {
             html2canvas(document.getElementById('report-section')).then(canvas => {
                 const link = document.createElement('a');
-                link.download = 'Finance_Report.jpg';
+                link.download = 'Statement.jpg';
                 link.href = canvas.toDataURL('image/jpeg');
                 link.click();
             });
