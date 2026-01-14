@@ -64,7 +64,7 @@
             
             <input type="password" id="pass-input" placeholder="••••" class="w-full p-4 rounded-2xl mb-4 text-center text-xl tracking-widest outline-none">
             
-            <button id="login-btn-text" onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl w-full transition-all shadow-lg shadow-blue-500/20 active:scale-95" data-en="Unlock" data-bn="প্রবেশ করুন">প্রবেশ করুন</button>
+            <button id="login-btn-text" onclick="login()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl w-full transition-all shadow-lg shadow-blue-500/20 active:scale-95" data-en="Login" data-bn="প্রবেশ করুন">প্রবেশ করুন</button>
         </div>
     </div>
 
@@ -72,7 +72,7 @@
   <div class="flex flex-col md:flex-row justify-between items-center bg-white/80 backdrop-blur-md p-6 rounded-3xl shadow-sm mb-6 border-b-2 border-blue-100">
     <div class="text-center md:text-left">
         <h1 id="current-month" class="text-xl font-bold text-slate-800 uppercase tracking-tight">জানুয়ারি ২০২৬</h1>
-        <p id="current-date" class="text-blue-600 font-semibold text-[10px]">মঙ্গলবার, ১৩ জানুয়ারি, ২০২৬</p>
+        <p id="current-date" class="text-blue-700 font-semibold text-[11px]">মঙ্গলবার, ১৩ জানুয়ারি, ২০২৬</p>
     </div>
 
     <div class="my-4 md:my-0">
@@ -202,7 +202,7 @@
     <div id="invoice-template" style="position: absolute; left: -9999px; top: 0; width: 450px; background: white; padding: 50px; border-radius: 30px;">
         <div style="text-align: center; margin-bottom: 30px;">
             <div style="width: 50px; height: 50px; background: #2563eb; color: white; border-radius: 12px; display: inline-block; line-height: 50px; font-size: 24px; font-weight: bold;">৳</div>
-            <h2 style="color: #1e293b; margin-top: 15px; font-size: 20px;">HISHAB INVOICE</h2>
+            <h2 style="color: #1e293b; margin-top: 15px; font-size: 20px;">HISHAB KHATA INVOICE</h2>
         </div>
         <hr style="border: 0; border-top: 2px dashed #e2e8f0; margin-bottom: 30px;">
         <div style="font-size: 16px; color: #475569; line-height: 2;">
@@ -212,8 +212,12 @@
             <div style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 20px; text-align: center;">
                 <span style="font-size: 14px; text-transform: uppercase; color: #94a3b8;">Total Amount</span>
                 <h1 style="font-size: 36px; color: #1e293b; margin: 0;">৳<span id="inv-amount"></span></h1>
+               
             </div>
         </div>
+        <p style="margin-top: 10px; font-size: 11px; color: #94a3b8; text-align: center; border-top: 1px solid #f1f5f9; pt-2;">
+    Generated on: <span id="inv-current-timestamp"></span>
+</p>
     </div>
 <footer class="mt-8 pb-6 text-center">
     <div class="inline-block p-[1px] bg-gradient-to-r from-transparent via-slate-300 to-transparent w-full max-w-md mb-6"></div>
@@ -263,7 +267,7 @@
             // Update Login Screen specifically
             const lib = {
                 bn: { title: "স্বাগতম", sub: "আপনার হিসাব সুরক্ষিত রাখুন", btn: "প্রবেশ করুন" },
-                en: { title: "Welcome", sub: "Secure your finance today", btn: "Unlock" }
+                en: { title: "Welcome", sub: "Secure your finance today", btn: "Login" }
             };
             document.getElementById('login-title').innerText = lib[currentLang].title;
             document.getElementById('login-subtitle').innerText = lib[currentLang].sub;
@@ -320,18 +324,36 @@
             });
         }
 
+
         function downloadInvoice(item) {
-            document.getElementById('inv-date').innerText = item.date;
-            document.getElementById('inv-title').innerText = item.title;
-            document.getElementById('inv-type').innerText = item.type.toUpperCase();
-            document.getElementById('inv-amount').innerText = item.amount;
-            html2canvas(document.getElementById('invoice-template'), {backgroundColor: null}).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `Invoice_${item.title}.jpg`;
-                link.href = canvas.toDataURL('image/jpeg', 0.9);
-                link.click();
-            });
-        }
+    // আগের ডাটাগুলো ঠিক রাখা
+    document.getElementById('inv-date').innerText = item.date;
+    document.getElementById('inv-title').innerText = item.title;
+    document.getElementById('inv-type').innerText = item.type.toUpperCase();
+    document.getElementById('inv-amount').innerText = item.amount;
+
+    // একদম নিচে কারেন্ট ডেট, টাইম এবং সেকেন্ড বসানো
+    const now = new Date();
+    const timestamp = now.toLocaleString('en-GB', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit', 
+        hour12: true 
+    });
+    document.getElementById('inv-current-timestamp').innerText = timestamp;
+
+    // ইমেজ জেনারেট করা
+    html2canvas(document.getElementById('invoice-template'), {backgroundColor: null}).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `Invoice_${item.title}.jpg`;
+        link.href = canvas.toDataURL('image/jpeg', 0.9);
+        link.click();
+    });
+}
+      
 
         function renderUI() {
             const sDate = document.getElementById('search-date').value;
