@@ -24,7 +24,27 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
+.clock-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #2d3436; /* আপনার ড্যাশবোর্ডের টেক্সট কালার অনুযায়ী */
+    font-size: 14px;
+    font-weight: bold;
+    display: inline-block;
+    padding: 5px 15px;
+  background: rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-top: 5px;
+}
 
+.colon {
+    color: #3498db; /* কোলনগুলো নীল রঙের হবে */
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
         .stat-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
@@ -73,6 +93,12 @@
     <div class="text-center md:text-left">
         <h1 id="current-month" class="text-xl font-bold text-slate-800 uppercase tracking-tight">জানুয়ারি ২০২৬</h1>
         <p id="current-date" class="text-blue-700 font-semibold text-[11px]">মঙ্গলবার, ১৩ জানুয়ারি, ২০২৬</p>
+        <div class="clock-container bg-white p-2 rounded-2xl shadow-sm border-b-2 border-blue-500">
+    <span id="hours">00</span><span class="colon">:</span>
+    <span id="minutes">00</span><span class="colon">:</span>
+    <span id="seconds">00</span>
+    <span id="ampm">AM</span>
+</div>
     </div>
 
     <div class="my-4 md:my-0">
@@ -536,6 +562,30 @@ function downloadInvoice(item) {
                 link.click();
             });
         }
+        function startLiveClock() {
+    const hoursEl = document.getElementById('hours');
+    const minutesEl = document.getElementById('minutes');
+    const secondsEl = document.getElementById('seconds');
+    const ampmEl = document.getElementById('ampm');
+
+    setInterval(() => {
+        const now = new Date();
+        let h = now.getHours();
+        let m = now.getMinutes();
+        let s = now.getSeconds();
+        let ampm = h >= 12 ? 'PM' : 'AM';
+
+        h = h % 12 || 12; // ১২ ঘণ্টা ফরম্যাট
+
+        // সংখ্যা যদি ১০ এর নিচে হয় তবে আগে ০ যোগ হবে
+        hoursEl.innerText = h < 10 ? '0' + h : h;
+        minutesEl.innerText = m < 10 ? '0' + m : m;
+        secondsEl.innerText = s < 10 ? '0' + s : s;
+        ampmEl.innerText = ampm;
+    }, 1000);
+}
+
+startLiveClock();
     </script>
 </body>
 </html>
