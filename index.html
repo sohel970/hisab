@@ -62,7 +62,17 @@
             box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
             background: white !important;
         }
+/* তারিখ এবং ঘড়ির সংখ্যার জন্য সুন্দর ফন্ট */
+#current-date, #current-month, .clock-container span {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+    letter-spacing: 0.5px;
+}
 
+/* টেবিলের ভেতরের তারিখের জন্য */
+#history-body td:first-child {
+    font-family: 'Courier New', Courier, monospace; /* এটি তারিখগুলোকে সমান সারিবদ্ধ রাখবে */
+    font-weight: 600;
+}
         .animate-pop { animation: pop 0.3s ease-out; }
         @keyframes pop { 0% { transform: scale(0.9); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
     </style>
@@ -425,10 +435,15 @@ function downloadInvoice(item) {
                 filtered = filtered.filter(e => e.date === sDate);
             } else if (sMonth) {
                 filtered = filtered.filter(e => e.date.startsWith(sMonth));
-            } else {
-                const currentMonth = new Date().toISOString().slice(0, 7);
-                filtered = filtered.filter(e => e.date.startsWith(currentMonth));
-            }
+           } else {
+    // লোকাল টাইম অনুযায়ী বর্তমান মাস এবং বছর বের করা
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0'); // মাস ০-১১ থাকে তাই ১ যোগ করতে হয়
+    const currentMonth = `${year}-${month}`; 
+    
+    filtered = filtered.filter(e => e.date.startsWith(currentMonth));
+}
 
             if (fType !== 'all') {
                 filtered = filtered.filter(e => e.type === fType);
@@ -589,3 +604,4 @@ startLiveClock();
     </script>
 </body>
 </html>
+
