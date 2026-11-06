@@ -71,7 +71,7 @@
                     <span id="status-dot" class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
                     <span id="status-text" class="text-[10px] font-bold text-emerald-600 uppercase">Cloud Active</span>
                 </div>
-                <button onclick="logout()" class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-bold border border-rose-100">Logout</button>
+                <button onclick="logout()" id="logout-btn" class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-xs font-bold border border-rose-100">Logout</button>
             </div>
         </div>
 
@@ -234,9 +234,16 @@
         // ===== ইউজার লিস্ট: "পাসওয়ার্ড": "ইউজার-আইডি" =====
         // user1 এর ডাটা পুরনো পাথেই থাকবে। নতুন ইউজার যোগ করতে এখানে নতুন লাইন লিখুন।
         const USERS = {
-            "2030": "user1",
+            "4321": "user1",
             "1234": "user2",
             "5678": "user3"
+        };
+
+        // ===== ইউজারের নাম (লগআউট বাটনে দেখাবে) =====
+        const NAMES = {
+            user1: "সোহেল",
+            user2: "আম্মু",
+            user3: "ভাই"
         };
 
         let dbRef = null;
@@ -254,6 +261,7 @@
                 document.getElementById('pass-input').value = '';
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('main-content').classList.remove('hidden');
+                document.getElementById('logout-btn').innerText = "👤 " + NAMES[userKey] + " | Logout";
                 initApp();
             } else {
                 alert(currentLang === 'bn' ? "ভুল পাসওয়ার্ড!" : "Wrong Password!");
